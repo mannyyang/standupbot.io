@@ -1,21 +1,23 @@
 {
-  "name": "StandupBot",
-  "version": "0.0.0",
+  "name": "standupbot.io",
+  "version": "0.0.8",
   "description": "Basic Slack Application",
-  "author": "mannyyang <heyitsmanuel@gmail.com>",
+  "author": "mannyyang",
   "main": "functions/__main__.js",
   "dependencies": {
+    "async": "^2.1.5",
+    "ejs": "^2.5.6",
+    "later": "^1.2.0",
     "lib": "^3.0.1",
     "mime": "^1.3.4",
     "request": "^2.79.0",
     "slack": "^8.2.1",
-    "async": "^2.1.5",
-    "ejs": "^2.5.6"
+    "axios": "^0.18.0"
   },
   "private": true,
   "stdlib": {
     "build": "faaslang",
-    "name": "mannyyang/StandupBot",
+    "name": "mannyyang/standupbot",
     "timeout": 10000,
     "publish": true,
     "personalize": {
