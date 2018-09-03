@@ -1,0 +1,14 @@
+version: '2'
+services:
+    app:
+        build: ./
+        working_dir: /var/www/app
+        container_name: my-app
+        environment:
+            - NODE_ENV=development
+            - PORT=3000
+        command: sh -c 'npm i && npm run dev'
+        volumes:
+            - .:/var/www/app
+        ports:
+            - "3000:3000"
