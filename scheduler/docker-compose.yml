@@ -1,14 +1,29 @@
-version: '2'
+version: "2"
+networks:
+  default:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
 services:
-    app:
-        build: ./
-        working_dir: /var/www/app
-        container_name: my-app
-        environment:
-            - NODE_ENV=development
-            - PORT=3000
-        command: sh -c 'npm i && npm run dev'
-        volumes:
-            - .:/var/www/app
-        ports:
-            - "3000:3000"
+  app:
+    container_name: my-app
+    working_dir: /var/www/app
+    volumes: 
+      - .:/var/www/app
+    build: .
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    command: sh -c 'npm i && npm start'
+    ports:
+      - "3000:3000"
+    links:
+      - mongo
+  mongo:
+    container_name: mongo
+    image: mongo
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"

@@ -1,15 +1,22 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { CronJob } from "cron";
-import axios from "axios";
-import db from "./database";
+import Agendash from "agendash";
+import agenda from "./lib/agenda";
 
+/**
+ * Express app
+ */
 const app = express();
 
 /**
  * Express configurations
  */
 app.use(bodyParser.json());
+
+/**
+ * Agenda Dashboard Route
+ */
+app.use("/agenda-dash", Agendash(agenda));
 
 /**
  * Root Route
@@ -48,40 +55,8 @@ app.post("/schedule", (req, res) => {
     command
   } = req.body;
 
-  const job = new CronJob(
-    cronStr,
-    onComplete => {
-      console.log("cron job executed");
-      sendMessage();
-    },
-    onComplete
-  );
-  job.start();
-
-  /**
-   * Add new schedule to data base and add job
-   * to in-memory cache.
-   */
-  db.addNewJob(req.body, job)
-    .then(data => {
-      return res.sendStatus(200);
-    })
-    .catch(err => {
-      res.statusCode = 500;
-      return res.send(err);
-    });
+  agenda.schedule('every 1 minute', 'slack/send-channel-message');
 });
-
-function sendMessage(text) {
-  axios.post(
-    "https://hooks.slack.com/services/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",
-    {
-      text: "Schedule executed done"
-    }
-  );
-}
-
-function onComplete() {}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
