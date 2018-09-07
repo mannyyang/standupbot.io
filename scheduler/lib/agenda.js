@@ -1,14 +1,14 @@
-import Agenda from "agenda";
+import Agenda from 'agenda';
 
-const mongoConnectionString = "mongodb://mongo:27017/agenda";
+const mongoConnectionString = 'mongodb://mongo:27017/agenda';
 const connectionOpts = {
   db: {
     address: mongoConnectionString,
-    collection: "agendaJobs"
+    collection: 'jobs'
   }
 };
 const agenda = new Agenda(connectionOpts);
-const jobTypes = ["slack-message"];
+const jobTypes = ['slack-message'];
 
 if (jobTypes.length) {
   async function run() {
@@ -19,7 +19,7 @@ if (jobTypes.length) {
 
     // Wait for agenda to connect. Should never fail since connection failures
     // should happen in the `await MongoClient.connect()` call.
-    await new Promise(resolve => agenda.once("ready", resolve));
+    await new Promise(resolve => agenda.once('ready', resolve));
 
     agenda.start();
   }
@@ -32,5 +32,4 @@ if (jobTypes.length) {
   }
 }
 
-module.exports = agenda;
 export default agenda;

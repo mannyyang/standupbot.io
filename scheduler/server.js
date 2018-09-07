@@ -1,7 +1,7 @@
-import express from "express";
-import bodyParser from "body-parser";
-import Agendash from "agendash";
-import agenda from "./lib/agenda";
+import express from 'express';
+import bodyParser from 'body-parser';
+import Agendash from 'agendash';
+import agenda from './lib/agenda';
 
 /**
  * Express app
@@ -16,14 +16,14 @@ app.use(bodyParser.json());
 /**
  * Agenda Dashboard Route
  */
-app.use("/agenda-dash", Agendash(agenda));
+app.use('/agenda-dash', Agendash(agenda));
 
 /**
  * Root Route
  */
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
   return res.json({
-    payload: "the home index page"
+    payload: 'the home index page'
   });
 });
 
@@ -44,8 +44,7 @@ app.get("/", (req, res) => {
  *   cronStr: '* * * * * *'
  * }
  */
-app.post("/schedule", (req, res) => {
-  console.log(`Request Body: ${JSON.stringify(req.body)}`);
+app.post('/schedule', (req, res) => {
   const {
     cronStr,
     laterSchedule,
@@ -55,7 +54,11 @@ app.post("/schedule", (req, res) => {
     command
   } = req.body;
 
-  agenda.schedule('every 1 minute', 'slack/send-channel-message');
+  const schedule = agenda.every('3 seconds', 'slack/send-channel-message', {
+    data: ''
+  });
+
+  return res.json({  });
 });
 
 const PORT = process.env.PORT || 3000;

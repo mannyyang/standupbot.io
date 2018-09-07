@@ -2,13 +2,8 @@ const lib = require("lib")({ token: process.env.STDLIB_TOKEN });
 const later = require("later");
 const axios = require("axios");
 
-function sendMessage(text) {
-  axios.post(
-    "https://hooks.slack.com/services/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",
-    {
-      text: 'Schedule executed done'
-    }
-  );
+function schedulePost(data) {
+  return axios.post("http://44030d7f.ngrok.io/schedule", data);
 }
 
 /**
@@ -34,26 +29,51 @@ module.exports = (
   callback
 ) => {
   const [action, ...scheduleArr] = text.split(" ");
-  const schedule = scheduleArr.join(" ");
-  const laterSchedule = later.parse.text(schedule);
-  let count = 0;
+  const scheduleStr = scheduleArr.join(" ");
+  const laterSchedule = later.parse.text(scheduleStr);
+  const schedule = laterSchedule.schedules[0];
+  
+  let seconds = "*";
+  let minutes = "*";
+  let hours = "*";
+  let daysCron = "1-5";
 
-  // Use UTC as timezone limiation.
-  later.date.UTC();
-  
-  // Send startup message from the inputted schedule.
-  const schedulerTimer = later.setInterval(sendMessage, laterSchedule);
-  
-  setTimeout(() => {
-    schedulerTimer.clear();
-    callback(null, {
-    text: `Action: ${action}
-    Schedule Text: ${schedule}`,
-      attachments: [
-        // You can customize your messages with attachments.
-        // See https://api.slack.com/docs/message-attachments for more info.
-      ],
-      command: command
+  if (schedule.hasOwnProperty('d')) {
+    const days = laterSchedule.schedules[0].d.join(",");
+    daysCron = days.length > 0 ? days : "1-5";
+  }
+
+  if (schedule.hasOwnProperty('t')) {
+    const time = schedule.t[0];
+    hours = Math.floor(time / 3600);
+    minutes = Math.floor(time / 60);
+    seconds = time - minutes * 60;
+  } else {
+    hours = schedule.h ? schedule.h.join(",") : "*";
+    minutes = schedule.m ? schedule.m.join(",") : "*";
+    seconds = schedule.s ? schedule.s.join(",") : "*";
+  }
+
+  schedulePost({
+    command,
+    channel,
+    user,
+    scheduleStr,
+    laterSchedule,
+    cronStr: `${seconds} ${minutes} ${hours} ${daysCron} * *`
+  })
+    .then(res => {
+      callback(null, {
+        text: `Action: ${action}
+        Schedule Text: ${scheduleStr}`,
+        attachments: [
+          // You can customize your messages with attachments.
+          // See https://api.slack.com/docs/message-attachments for more info.
+        ],
+        command: command
+      });
+    })
+    .catch(err => {
+      callback(err, null);
     });
-  }, 5000);
 };

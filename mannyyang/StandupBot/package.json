@@ -1,6 +1,6 @@
 {
   "name": "standupbot.io",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "Basic Slack Application",
   "author": "mannyyang",
   "main": "functions/__main__.js",
