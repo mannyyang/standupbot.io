@@ -54,11 +54,17 @@ app.post('/schedule', (req, res) => {
     command
   } = req.body;
 
-  const schedule = agenda.every('3 seconds', 'slack/send-channel-message', {
-    data: ''
+  const job = agenda.create('slack/send-channel-message', { data: 'data' });
+
+  job.repeatEvery(cronStr, {
+    timezone: 'America/Los_Angeles'
   });
 
-  return res.json({  });
+  job.save();
+
+  return res.json({
+    job
+  });
 });
 
 const PORT = process.env.PORT || 3000;

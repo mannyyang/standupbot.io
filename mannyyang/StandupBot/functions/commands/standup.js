@@ -1,9 +1,9 @@
-const lib = require("lib")({ token: process.env.STDLIB_TOKEN });
-const later = require("later");
-const axios = require("axios");
+const lib = require('lib')({ token: process.env.STDLIB_TOKEN });
+const later = require('later');
+const axios = require('axios');
 
 function schedulePost(data) {
-  return axios.post("http://44030d7f.ngrok.io/schedule", data);
+  return axios.post('http://localhost:3000/schedule', data);
 }
 
 /**
@@ -23,36 +23,42 @@ function schedulePost(data) {
 module.exports = (
   user,
   channel,
-  text = "",
+  text = '',
   command = {},
   botToken = null,
   callback
 ) => {
-  const [action, ...scheduleArr] = text.split(" ");
-  const scheduleStr = scheduleArr.join(" ");
+  const [action, ...scheduleArr] = text.split(' ');
+  const scheduleStr = scheduleArr.join(' ');
   const laterSchedule = later.parse.text(scheduleStr);
   const schedule = laterSchedule.schedules[0];
-  
-  let seconds = "*";
-  let minutes = "*";
-  let hours = "*";
-  let daysCron = "1-5";
 
-  if (schedule.hasOwnProperty('d')) {
-    const days = laterSchedule.schedules[0].d.join(",");
-    daysCron = days.length > 0 ? days : "1-5";
+  let seconds = '*';
+  let minutes = '*';
+  let hours = '*';
+  let daysCron = '*';
+
+  if (schedule) {
+    if (schedule.hasOwnProperty('d')) {
+      const days = laterSchedule.schedules[0].d.join(',');
+      daysCron = days.length > 0 ? days : '1-5';
+    }
+
+    if (schedule.hasOwnProperty('t')) {
+      const time = schedule.t[0];
+      hours = Math.floor(time / 3600);
+      minutes = (time/60) % 60;
+      seconds = time % 60;
+    } else {
+      hours = schedule.h ? schedule.h.join(',') : '*';
+      minutes = schedule.m ? schedule.m.join(',') : '*';
+      seconds = schedule.s ? schedule.s.join(',') : '*';
+    }
   }
 
-  if (schedule.hasOwnProperty('t')) {
-    const time = schedule.t[0];
-    hours = Math.floor(time / 3600);
-    minutes = Math.floor(time / 60);
-    seconds = time - minutes * 60;
-  } else {
-    hours = schedule.h ? schedule.h.join(",") : "*";
-    minutes = schedule.m ? schedule.m.join(",") : "*";
-    seconds = schedule.s ? schedule.s.join(",") : "*";
-  }
+  const cron = `${seconds} ${minutes} ${hours} ${daysCron} * *`;
+
+  console.log(cron);
 
   schedulePost({
     command,
@@ -60,7 +66,7 @@ module.exports = (
     user,
     scheduleStr,
     laterSchedule,
-    cronStr: `${seconds} ${minutes} ${hours} ${daysCron} * *`
+    cronStr: cron
   })
     .then(res => {
       callback(null, {
