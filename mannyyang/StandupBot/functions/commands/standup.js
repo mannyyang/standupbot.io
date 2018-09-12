@@ -3,7 +3,7 @@ const later = require('later');
 const axios = require('axios');
 
 function schedulePost(data) {
-  return axios.post('http://localhost:3000/schedule', data);
+  return axios.post('http://84371dcd.ngrok.io/schedule', data);
 }
 
 /**
@@ -56,7 +56,7 @@ module.exports = (
     }
   }
 
-  const cron = `${seconds} ${minutes} ${hours} ${daysCron} * *`;
+  const cron = `${minutes} ${hours} ${daysCron} * *`;
 
   console.log(cron);
 
